@@ -4,6 +4,8 @@ output:
   html_notebook: 
     theme: cerulean
     highlight: textmate
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -31,13 +33,14 @@ Let's take a look at the data:
 
 ```{r}
 library(keras)
-
+gc()
 dataset <- dataset_boston_housing()
 c(c(train_data, train_targets), c(test_data, test_targets)) %<-% dataset
 ```
 
 ```{r}
 str(train_data)
+head(train_data)
 ```
 
 ```{r}
@@ -76,6 +79,7 @@ It would be problematic to feed into a neural network values that all take wildl
 
 ```{r}
 mean <- apply(train_data, 2, mean)
+# mean <- apply(rbind(train_data, test_data), 2, mean)
 std <- apply(train_data, 2, sd)
 train_data <- scale(train_data, center = mean, scale = std)
 test_data <- scale(test_data, center = mean, scale = std)
@@ -126,8 +130,10 @@ folds <- cut(1:length(indices), breaks = k, labels = FALSE)
 
 num_epochs <- 100
 all_scores <- c()
+# Each fold takes ~30 sec
 for (i in 1:k) {
   cat("processing fold #", i, "\n")
+  gc()
   # Prepare the validation data: data from partition # k
   val_indices <- which(folds == i, arr.ind = TRUE) 
   val_data <- train_data[val_indices,]
@@ -146,7 +152,7 @@ for (i in 1:k) {
                 
   # Evaluate the model on the validation data
   results <- model %>% evaluate(val_data, val_targets, verbose = 0)
-  all_scores <- c(all_scores, results$mae)
+  all_scores <- c(all_scores, results$mean_absolute_error)
 }  
 ```
 
@@ -164,6 +170,8 @@ Let's try training the network for a bit longer: 500 epochs. To keep a record of
 
 ```{r}
 # Some memory clean-up
+# https://stackoverflow.com/questions/50895110/what-do-i-need-k-clear-session-and-del-model-for-keras-with-tensorflow-gpu
+# K.clear_session() is useful when you're creating multiple models in succession, such as during hyperparameter search or cross-validation. Each model you train adds nodes (potentially numbering in the thousands) to the graph. TensorFlow executes the entire graph whenever you (or Keras) call tf.Session.run() or tf.Tensor.eval(), so your models will become slower and slower to train, and you may also run out of memory. Clearing the session removes all the nodes left over from previous models, freeing memory and preventing slowdown.
 k_clear_session()
 ```
 
@@ -172,7 +180,7 @@ num_epochs <- 500
 all_mae_histories <- NULL
 for (i in 1:k) {
   cat("processing fold #", i, "\n")
-  
+  gc()
   # Prepare the validation data: data from partition # k
   val_indices <- which(folds == i, arr.ind = TRUE)
   val_data <- train_data[val_indices,]
@@ -191,7 +199,7 @@ for (i in 1:k) {
     validation_data = list(val_data, val_targets),
     epochs = num_epochs, batch_size = 1, verbose = 0
   )
-  mae_history <- history$metrics$val_mae
+  mae_history <- history$metrics$val_mean_absolute_error
   all_mae_histories <- rbind(all_mae_histories, mae_history)
 }
 ```
@@ -199,10 +207,14 @@ for (i in 1:k) {
 We can then compute the average of the per-epoch MAE scores for all folds:
 
 ```{r}
+dim(all_mae_histories)
+all_mae_histories[, 1:5]
+
 average_mae_history <- data.frame(
   epoch = seq(1:ncol(all_mae_histories)),
   validation_mae = apply(all_mae_histories, 2, mean)
 )
+head(average_mae_history)
 ```
 
 Let's plot this:

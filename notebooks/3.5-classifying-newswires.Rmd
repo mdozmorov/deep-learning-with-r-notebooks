@@ -4,6 +4,8 @@ output:
   html_notebook: 
     theme: cerulean
     highlight: textmate
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -29,8 +31,9 @@ Like IMDB and MNIST, the Reuters dataset comes packaged as part of Keras. Let's 
 
 ```{r}
 library(keras)
-
+gc()
 reuters <- dataset_reuters(num_words = 10000)
+str(reuters)
 c(c(train_data, train_labels), c(test_data, test_labels)) %<-% reuters
 ```
 
@@ -88,6 +91,7 @@ vectorize_sequences <- function(sequences, dimension = 10000) {
   results
 }
 
+train_data[1:2]
 x_train <- vectorize_sequences(train_data)
 x_test <- vectorize_sequences(test_data)
 ```
@@ -103,13 +107,18 @@ to_one_hot <- function(labels, dimension = 46) {
 }
 
 one_hot_train_labels <- to_one_hot(train_labels)
+dim(one_hot_train_labels)
+one_hot_train_labels[1:5, 1:5]
 one_hot_test_labels <- to_one_hot(test_labels)
+dim(one_hot_test_labels)
 ```
 
 Note that there is a built-in way to do this in Keras, which you have already seen in action in our MNIST example:
 
 ```{r}
 one_hot_train_labels <- to_categorical(train_labels)
+dim(one_hot_train_labels)
+one_hot_train_labels[1:5, 1:5]
 one_hot_test_labels <- to_categorical(test_labels)
 ```
 
@@ -163,6 +172,7 @@ partial_y_train = one_hot_train_labels[-val_indices,]
 Now let's train our network for 20 epochs:
 
 ```{r echo=TRUE, results='hide'}
+gc()
 history <- model %>% fit(
   partial_x_train,
   partial_y_train,
@@ -181,6 +191,7 @@ plot(history)
 The network begins to overfit after nine epochs. Let's train a new network from scratch for nine epochs and then evaluate it on the test set.
 
 ```{r, echo=TRUE, results='hide'}
+gc()
 model <- keras_model_sequential() %>% 
   layer_dense(units = 64, activation = "relu", input_shape = c(10000)) %>% 
   layer_dense(units = 64, activation = "relu") %>% 
@@ -232,6 +243,7 @@ dim(predictions)
 The coefficients in this vector sum to 1:
 
 ```{r}
+predictions[1,]
 sum(predictions[1,])
 ```
 
@@ -262,6 +274,7 @@ This new loss function is still mathematically the same as `categorical_crossent
 We mentioned earlier that since our final outputs were 46-dimensional, we should avoid intermediate layers with much less than 46 hidden units. Now let's try to see what happens when we introduce an information bottleneck by having intermediate layers significantly less than 46-dimensional, e.g. 4-dimensional.
 
 ```{r, echo=TRUE, results='hide'}
+gc()
 model <- keras_model_sequential() %>% 
   layer_dense(units = 64, activation = "relu", input_shape = c(10000)) %>% 
   layer_dense(units = 4, activation = "relu") %>% 

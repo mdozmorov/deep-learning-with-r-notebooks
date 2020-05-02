@@ -4,6 +4,8 @@ output:
   html_notebook: 
     theme: cerulean
     highlight: textmate
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -32,7 +34,12 @@ The following code will load the dataset (when you run it for the first time, ab
 ```{r, results='hide'}
 library(keras)
 
+# https://github.com/rstudio/keras/issues/765
+# downgrade numpy to a version below 1.16.3, e.g.
+# pip uninstall numpy
+# pip install --upgrade numpy==1.16.1
 imdb <- dataset_imdb(num_words = 10000)
+str(imdb)
 c(c(train_data, train_labels), c(test_data, test_labels)) %<-% imdb
 ```
 
@@ -59,9 +66,11 @@ For kicks, here's how you can quickly decode one of these reviews back to Englis
 ```{r}
 # word_index is a dictionary mapping words to an integer index
 word_index <- dataset_imdb_word_index()
+str(word_index)
 # We reverse it, mapping integer indices to words
 reverse_word_index <- names(word_index)
 names(reverse_word_index) <- word_index
+head(reverse_word_index)
 # We decode the review; note that our indices were offset by 3
 # because 0, 1 and 2 are reserved indices for "padding", "start of sequence", and "unknown".
 decoded_review <- sapply(train_data[[1]], function(index) {
@@ -198,6 +207,7 @@ partial_y_train <- y_train[-val_indices]
 We will now train our model for 20 epochs (20 iterations over all samples in the `x_train` and `y_train` tensors), in mini-batches of 512 samples. At this same time we will monitor loss and accuracy on the 10,000 samples that we set apart. This is done by passing the validation data as the `validation_data` argument:
 
 ```{r, echo=TRUE, results='hide'}
+gc()
 model %>% compile(
   optimizer = "rmsprop",
   loss = "binary_crossentropy",
@@ -243,6 +253,7 @@ In this case, to prevent overfitting, you could stop training after three epochs
 Let's train a new network from scratch for four epochs and then evaluate it on the test data.
 
 ```{r, echo=TRUE, results='hide'}
+gc()
 model <- keras_model_sequential() %>% 
   layer_dense(units = 16, activation = "relu", input_shape = c(10000)) %>% 
   layer_dense(units = 16, activation = "relu") %>% 

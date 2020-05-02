@@ -4,6 +4,8 @@ output:
   html_notebook: 
     theme: cerulean
     highlight: textmate
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -24,8 +26,18 @@ The MNIST dataset comes preloaded in Keras, in the form of `train` and `test` li
 
 ```{r, results='hide'}
 library(keras)
+# install_keras()
+# library(tensorflow)
+# install_tensorflow()
+# library(reticulate)
+# Sys.setenv(RETICULATE_PYTHON = "/usr/local/bin/python3.7")
+# use_python("/usr/local/bin/python3.7", required = TRUE)
+# use_virtualenv("/Users/mdozmorov/Documents/Work/Teaching/BIOS691_deep_learning_R/WIP/tensorflow")
 
 mnist <- dataset_mnist()
+str(mnist)
+image(mnist$train$x[1, ,])
+mnist$train$y[1]
 train_images <- mnist$train$x
 train_labels <- mnist$train$y
 test_images <- mnist$test$x
@@ -87,7 +99,9 @@ network %>% compile(
 Before training, we'll preprocess the data by reshaping it into the shape the network expects and scaling it so that all values are in the `[0, 1]` interval. Previously, our training images, for instance, were stored in an array of shape `(60000, 28, 28)` of type integer with values in the `[0, 255]` interval. We transform it into a double array of shape `(60000, 28 * 28)` with values between 0 and 1.
 
 ```{r}
+dim(train_images)
 train_images <- array_reshape(train_images, c(60000, 28 * 28))
+dim(train_images)
 train_images <- train_images / 255
 
 test_images <- array_reshape(test_images, c(10000, 28 * 28))
@@ -105,6 +119,7 @@ We are now ready to train our network, which in Keras is done via a call to the 
 
 ```{r, echo=TRUE, results='hide'}
 network %>% fit(train_images, train_labels, epochs = 5, batch_size = 128)
+str(network)
 ```
 
 Two quantities are being displayed during training: the "loss" of the network over the training data, and the accuracy of the network over the training data.

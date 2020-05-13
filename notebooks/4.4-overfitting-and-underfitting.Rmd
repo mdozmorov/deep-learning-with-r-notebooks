@@ -4,6 +4,8 @@ output:
   html_notebook: 
     theme: cerulean
     highlight: textmate
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -33,6 +35,10 @@ Let's prepare the data using the code from Chapter 3, Section 5:
 ```{r}
 library(keras)
 
+# https://github.com/rstudio/keras/issues/765
+# downgrade numpy to a version below 1.16.3, e.g.
+# pip uninstall numpy
+# pip install --upgrade numpy==1.16.1
 imdb <- dataset_imdb(num_words = 10000)
 c(c(train_data, train_labels), c(test_data, test_labels)) %<-% imdb
 
@@ -99,6 +105,7 @@ smaller_model %>% compile(
 Let's train both the original and smaller network:
 
 ```{r, echo=FALSE, results='hide'}
+gc()
 original_hist <- original_model %>% fit(
   x_train, y_train,
   epochs = 20,
@@ -108,6 +115,7 @@ original_hist <- original_model %>% fit(
 ```
 
 ```{r, echo=FALSE, results='hide'}
+gc()
 smaller_model_hist <- smaller_model %>% fit(
   x_train, y_train,
   epochs = 20,
@@ -120,6 +128,7 @@ smaller_model_hist <- smaller_model %>% fit(
 To compare the losses we'll write an R function that takes a named list of loss series and plots it:
 
 ```{r}
+gc()
 library(ggplot2)
 library(tidyr)
 plot_training_losses <- function(losses) {
@@ -131,7 +140,7 @@ plot_training_losses <- function(losses) {
     ggplot(aes(x = epoch, y = loss, colour = model)) +
     geom_point()
 }
-````
+```
 
 Here's a comparison of the validation losses of the original network and the smaller network:
 
@@ -153,6 +162,7 @@ bigger_model <- keras_model_sequential() %>%
   layer_dense(units = 512, activation = "relu") %>% 
   layer_dense(units = 1, activation = "sigmoid")
 
+gc()
 bigger_model %>% compile(
   optimizer = "rmsprop",
   loss = "binary_crossentropy",
@@ -204,6 +214,10 @@ A "simple model" in this context is a model where the distribution of parameter 
 In Keras, weight regularization is added by passing _weight regularizer instances_ to layers as keyword arguments. Let's add L2 weight regularization to our movie review classification network:
 
 ```{r}
+# gc()
+# k_clear_session()
+# Insufficient resources, long, R session terminates
+
 l2_model <- keras_model_sequential() %>% 
   layer_dense(units = 16, kernel_regularizer = regularizer_l2(0.001),
               activation = "relu", input_shape = c(10000)) %>% 

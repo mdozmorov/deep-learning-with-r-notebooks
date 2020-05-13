@@ -4,6 +4,8 @@ output:
   html_notebook: 
     theme: cerulean
     highlight: textmate
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -67,7 +69,9 @@ Now, let's train the convnet on the MNIST digits. We'll reuse a lot of the code 
 mnist <- dataset_mnist()
 c(c(train_images, train_labels), c(test_images, test_labels)) %<-% mnist
 
+dim(train_images)
 train_images <- array_reshape(train_images, c(60000, 28, 28, 1))
+dim(train_images)
 train_images <- train_images / 255
 
 test_images <- array_reshape(test_images, c(10000, 28, 28, 1))

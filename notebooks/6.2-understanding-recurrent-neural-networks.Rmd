@@ -4,6 +4,8 @@ output:
   html_notebook: 
     theme: cerulean
     highlight: textmate
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -97,6 +99,7 @@ model %>% compile(
   metrics = c("acc")
 )
 
+# Each epoch takes ~30sec, total ~5min
 history <- model %>% fit(
   input_train, y_train,
   epochs = 10,
@@ -129,6 +132,7 @@ model %>% compile(
   metrics = c("acc")
 )
 
+# Each epoch ~90sec, total ~15 min
 history <- model %>% fit(
   input_train, y_train,
   epochs = 10,

@@ -4,6 +4,8 @@ output:
   html_notebook: 
     theme: cerulean
     highlight: textmate
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -88,6 +90,7 @@ We'll start by running instances of the previously introduced `image_data_genera
 
 ```{r}
 base_dir <- "~/Downloads/cats_and_dogs_small"
+base_dir <- "data/cats_and_dogs_small"
 train_dir <- file.path(base_dir, "train")
 validation_dir <- file.path(base_dir, "validation")
 test_dir <- file.path(base_dir, "test")
@@ -259,6 +262,8 @@ model %>% compile(
   metrics = c("accuracy")
 )
 
+# One epoch takes up to 500sec
+# Full training takes ~4hours
 history <- model %>% fit_generator(
   train_generator,
   steps_per_epoch = 100,
@@ -269,7 +274,7 @@ history <- model %>% fit_generator(
 ```
 
 ```{r}
-save_model_hdf5(model, "cats_and_dogs_small_3.h5")
+save_model_hdf5(model, "data.cats_and_dogs_small_3.h5")
 ```
 
 Let's plot our results again:

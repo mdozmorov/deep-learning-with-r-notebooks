@@ -4,6 +4,8 @@ output:
   html_notebook: 
     theme: cerulean
     highlight: textmate
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -103,6 +105,20 @@ fnames <- paste0("dog.", 1501:2000, ".jpg")
 file.copy(file.path(original_dataset_dir, fnames),
           file.path(test_dogs_dir))
 ```
+
+```{r}
+base_dir <- "/home/rstudio/"
+train_dir <- file.path(base_dir, "data/cats_and_dogs_small/train")
+validation_dir <- file.path(base_dir, "data/cats_and_dogs_small/validation")
+test_dir <- file.path(base_dir, "data/cats_and_dogs_small/test")
+train_cats_dir <- file.path(base_dir, "data/cats_and_dogs_small/train/cats")
+train_dogs_dir <- file.path(base_dir, "data/cats_and_dogs_small/train/dogs")
+validation_cats_dir <- file.path(base_dir, "data/cats_and_dogs_small/validation/cats")
+validation_dogs_dir <- file.path(base_dir, "data/cats_and_dogs_small/validation/dogs")
+test_cats_dir <- file.path(base_dir, "data/cats_and_dogs_small/test/cats")
+test_dogs_dir <- file.path(base_dir, "data/cats_and_dogs_small/test/dogs")
+```
+
 
 As a sanity check, let's count how many pictures we have in each training split (train/validation/test):
 
@@ -221,6 +237,8 @@ batch <- generator_next(train_generator)
 str(batch)
 ```
 
+On a CPU, each epoch with 30 steps takes 90sec. So, 30 epochs take ~45min.
+
 Let's fit the model to the data using the generator. You do so using the `fit_generator` function, the equivalent of `fit` for data generators like this one. It expects as its first argument a generator that will yield batches of inputs and targets indefinitely, like this one does. Because the data is being generated endlessly, the generator needs to know how many samples to draw from the generator before declaring an epoch over. This is the role of the `steps_per_epoch` argument: after having drawn `steps_per_epoch` batches from the generator -- that is, after having run for `steps_per_epoch` gradient descent steps -- the fitting process will go to the next epoch. In this case, batches are 20-samples large, so it will take 100 batches until you see your target of 2,000 samples.
 
 When using `fit_generator`, you can pass a `validation_data` argument, much as with the `fit` function. It's important to note that this argument is allowed to be a data generator, but it could also be a list of arrays. If you pass a generator as `validation_data`, then this generator is expected to yield batches of validation data endlessly; thus you should also specify the `validation_steps` argument, which tells the process how many batches to draw from the validation generator for evaluation.
@@ -238,7 +256,10 @@ history <- model %>% fit_generator(
 It is good practice to always save your models after training:
 
 ```{r}
-model %>% save_model_hdf5("cats_and_dogs_small_1.h5")
+model %>% save_model_hdf5("data/cats_and_dogs_small_1.h5")
+# load_model_hdf5()
+# Also, see https://tensorflow.rstudio.com/tutorials/beginners/basic-ml/tutorial_save_and_restore/
+# save_model_tf(), load_model_tf()
 ```
 
 Let's plot the loss and accuracy of the model over the training and validation data during training:
@@ -286,12 +307,13 @@ Let's take a look at our augmented images:
 ```{r}
 # We pick one image to "augment"
 fnames <- list.files(train_cats_dir, full.names = TRUE)
-img_path <- fnames[[2]]
+(img_path <- fnames[[2]])
 
 # Convert it to an array with shape (150, 150, 3)
 img <- image_load(img_path, target_size = c(150, 150))
 img_array <- image_to_array(img)
 img_array <- array_reshape(img_array, c(1, 150, 150, 3))
+img_array %>% str
 
 # Generated that will flow augmented images
 augmentation_generator <- flow_images_from_data(
@@ -333,6 +355,8 @@ model %>% compile(
   metrics = c("acc")
 )
 ```
+
+On a CPU, each epoch with 100 steps takes 150sec. So, 100 epochs take ~250min or >4hours.
 
 Let's train our network using data augmentation and dropout:
 
@@ -377,7 +401,7 @@ history <- model %>% fit_generator(
 Let's save our model -- we will be using it in the section on convnet visualization.
 
 ```{r}
-model %>% save_model_hdf5("cats_and_dogs_small_2.h5")
+model %>% save_model_hdf5("data/cats_and_dogs_small_2.h5")
 ```
 
 Let's plot our results again:

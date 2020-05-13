@@ -4,6 +4,8 @@ output:
   html_notebook: 
     theme: cerulean
     highlight: textmate
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -39,6 +41,7 @@ for (sample in samples)
       # Assigns a unique index to each unique word. Note that you don't
       # attribute index 1 to anything.
       token_index[[word]] <- length(token_index) + 2 
+token_index
 
 # Vectorizes the samples. You'll only consider the first max_length 
 # words in each sample.
@@ -95,13 +98,16 @@ samples <- c("The cat sat on the mat.", "The dog ate my homework.")
 # most common words, then builds the word index.
 tokenizer <- text_tokenizer(num_words = 1000) %>%
   fit_text_tokenizer(samples)
+tokenizer
 
 # Turns strings into lists of integer indices
 sequences <- texts_to_sequences(tokenizer, samples)
+sequences
 
 # You could also directly get the one-hot binary representations. Vectorization 
 # modes other than one-hot encoding are supported by this tokenizer.
 one_hot_results <- texts_to_matrix(tokenizer, samples, mode = "binary")
+one_hot_results %>% str
 
 # How you can recover the word index that was computed
 word_index <- tokenizer$word_index
@@ -137,6 +143,7 @@ for (i in 1:length(samples)) {
     results[[i, j, index]] <- 1
   }
 }
+results %>% str
 ```
 
 

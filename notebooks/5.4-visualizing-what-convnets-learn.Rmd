@@ -4,6 +4,8 @@ output:
   html_notebook: 
     theme: cerulean
     highlight: textmate
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -32,7 +34,7 @@ Visualizing intermediate activations consists in displaying the feature maps tha
 ```{r}
 library(keras)
 
-model <- load_model_hdf5("cats_and_dogs_small_2.h5")
+model <- load_model_hdf5("data/cats_and_dogs_small_2.h5")
 summary(model)  # As a reminder.
 ```
 
@@ -40,10 +42,14 @@ This will be the input image we will use -- a picture of a cat, not part of imag
 
 ```{r}
 img_path <- "~/Downloads/cats_and_dogs_small/test/cats/cat.1700.jpg"
+img_path <- "data/cats_and_dogs_small/test/cats/cat.1700.jpg"
 
 # We preprocess the image into a 4D tensor
 img <- image_load(img_path, target_size = c(150, 150))
+img
 img_tensor <- image_to_array(img)
+img_tensor %>% dim
+img_tensor[, , 3] %>% image()
 img_tensor <- array_reshape(img_tensor, c(1, 150, 150, 3))
 
 # Remember that the model was trained on inputs
@@ -109,7 +115,7 @@ plot_channel(first_layer_activation[1,,,7])
 This channel is subtly different, and unlike the 5th channel seems to be picking up the iris of the cat's eye. At this point, let's go and plot a complete visualization of all the activations in the network. We'll extract and plot every channel in each of our 8 activation maps, and we will stack the results in one big image tensor, with channels stacked side by side.
 
 ```{r}
-dir.create("cat_activations")
+dir.create("data/cat_activations")
 image_size <- 58
 images_per_row <- 16
 
@@ -121,7 +127,7 @@ for (i in 1:8) {
   n_features <- dim(layer_activation)[[4]]
   n_cols <- n_features %/% images_per_row
  
-  png(paste0("cat_activations/", i, "_", layer_name, ".png"), 
+  png(paste0("data/cat_activations/", i, "_", layer_name, ".png"), 
       width = image_size * images_per_row, 
       height = image_size * n_cols)
   op <- par(mfrow = c(n_cols, images_per_row), mai = rep_len(0.02, 4))

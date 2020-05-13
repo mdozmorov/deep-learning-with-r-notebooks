@@ -4,6 +4,8 @@ output:
   html_notebook: 
     theme: cerulean
     highlight: textmate
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -34,13 +36,14 @@ Download and uncompress the data as follows:
 
 ```{r, eval=FALSE, echo=TRUE}
 dir.create("~/Downloads/jena_climate", recursive = TRUE)
+dir.create("data/jena_climate", recursive = TRUE)
 download.file(
   "https://s3.amazonaws.com/keras-datasets/jena_climate_2009_2016.csv.zip",
-  "~/Downloads/jena_climate/jena_climate_2009_2016.csv.zip"
+  "data/jena_climate/jena_climate_2009_2016.csv.zip"
 )
 unzip(
-  "~/Downloads/jena_climate/jena_climate_2009_2016.csv.zip",
-  exdir = "~/Downloads/jena_climate"
+  "data/jena_climate/jena_climate_2009_2016.csv.zip",
+  exdir = "data/jena_climate"
 )
 ```
 
@@ -51,13 +54,14 @@ Let's take a look at the data:
 library(tibble)
 library(readr)
 
-data_dir <- "~/Downloads/jena_climate"
-fname <- file.path(data_dir, "jena_climate_2009_2016.csv")
+data_dir <- "data/jena_climate"
+fname <- file.path(data_dir, "jena_climate_2009_2016.csv.gz")
 data <- read_csv(fname)
 ```
 
 ```{r}
 glimpse(data)
+head(data)
 ```
 
 Here is the plot of temperature (in degrees Celsius) over time. On this plot, you can clearly see the yearly periodicity of temperature.
@@ -99,6 +103,7 @@ First, you'll convert the R data frame which we read earlier into a matrix of fl
 
 ```{r}
 data <- data.matrix(data[,-1])
+head(data)
 ```
 
 You'll then preprocess the data by subtracting the mean of each timeseries and dividing by the standard deviation. You're going to use the first 200,000 timesteps as training data, so compute the mean and standard deviation for normalization only on this fraction of the data.
@@ -228,6 +233,8 @@ evaluate_naive_method <- function() {
   }
   print(mean(batch_maes))
 }
+
+evaluate_naive_method()
 ```
 
 It yields a MAE of 0.29. Since our temperature data has been normalized to be centered on 0 and have a standard deviation of one, this number is not immediately interpretable. It translates to an average absolute error of `0.29 * temperature_std` degrees Celsius, i.e. 2.57˚C. That's a fairly large average absolute error -- now the game is to leverage our knowledge of deep learning to do better. 
@@ -251,6 +258,7 @@ model %>% compile(
   loss = "mae"
 )
 
+# Each epoch is ~50sec, full training is ~16min
 history <- model %>% fit_generator(
   train_gen,
   steps_per_epoch = 500,
@@ -258,6 +266,11 @@ history <- model %>% fit_generator(
   validation_data = val_gen,
   validation_steps = val_steps
 )
+```
+
+```{r}
+save_model_hdf5(model, "data/jena_climate_1.h5")
+load_model_hdf5("data/jena_climate_1.h5")
 ```
 
 Let's display the loss curves for validation and training:
@@ -286,6 +299,7 @@ model %>% compile(
   loss = "mae"
 )
 
+# Each epoch takes ~160sec, full training <1hour
 history <- model %>% fit_generator(
   train_gen,
   steps_per_epoch = 500,
@@ -293,6 +307,11 @@ history <- model %>% fit_generator(
   validation_data = val_gen,
   validation_steps = val_steps
 )
+```
+
+```{r}
+save_model_hdf5(model, "data/jena_climate_2.h5")
+load_model_hdf5("data/jena_climate_2.h5")
 ```
 
 Let look at our results:
@@ -323,6 +342,7 @@ model %>% compile(
   loss = "mae"
 )
 
+# Each epoch is ~170sec
 history <- model %>% fit_generator(
   train_gen,
   steps_per_epoch = 500,
@@ -330,6 +350,11 @@ history <- model %>% fit_generator(
   validation_data = val_gen,
   validation_steps = val_steps
 )
+```
+
+```{r}
+save_model_hdf5(model, "data/jena_climate_3.h5")
+load_model_hdf5("data/jena_climate_3.h5")
 ```
 
 ```{r}
@@ -370,6 +395,11 @@ history <- model %>% fit_generator(
   validation_data = val_gen,
   validation_steps = val_steps
 )
+```
+
+```{r}
+save_model_hdf5(model, "data/jena_climate_4.h5")
+load_model_hdf5("data/jena_climate_4.h5")
 ```
 
 Let's take a look at our results:

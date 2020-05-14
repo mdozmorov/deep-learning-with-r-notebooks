@@ -342,7 +342,7 @@ model %>% compile(
   loss = "mae"
 )
 
-# Each epoch is ~170sec
+# Each epoch is ~170sec, total time <2 hours
 history <- model %>% fit_generator(
   train_gen,
   steps_per_epoch = 500,
@@ -388,6 +388,7 @@ model %>% compile(
   loss = "mae"
 )
 
+# Each epoch takes ~360sec, total training ~4 hours
 history <- model %>% fit_generator(
   train_gen,
   steps_per_epoch = 500,

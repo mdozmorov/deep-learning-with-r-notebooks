@@ -401,6 +401,8 @@ history <- model %>% fit_generator(
 ```{r}
 save_model_hdf5(model, "data/jena_climate_4.h5")
 load_model_hdf5("data/jena_climate_4.h5")
+save(list = c("history"), file = "data/jena_climate_4_history.rdata")
+load(file = "data/jena_climate_4_history.rdata")
 ```
 
 Let's take a look at our results:
@@ -488,6 +490,7 @@ model %>% compile(
   loss = "mae"
 )
 
+# Each epoch is ~15min, total time ~5 hours
 history <- model %>% fit_generator(
   train_gen_reverse,
   steps_per_epoch = 500,
@@ -495,6 +498,13 @@ history <- model %>% fit_generator(
   validation_data = val_gen_reverse,
   validation_steps = val_steps
 )
+```
+
+```{r}
+save_model_hdf5(model, "data/jena_climate_5.h5")
+load_model_hdf5("data/jena_climate_5.h5")
+save(list = c("history"), file = "data/jena_climate_5_history.rdata")
+load(file = "data/jena_climate_5_history.rdata")
 ```
 
 ```{r}
@@ -532,7 +542,8 @@ model %>% compile(
   loss = "binary_crossentropy",
   metrics = c("acc")
 )
-  
+
+# Could not run, OverflowError: Python int too large to convert to C long
 history <- model %>% fit(
   x_train, y_train,
   epochs = 10,
@@ -569,6 +580,7 @@ model %>% compile(
   metrics = c("acc")
 )
 
+# Could not run: OverflowError: Python int too large to convert to C long
 history <- model %>% fit(
   x_train, y_train,
   epochs = 10,
@@ -593,6 +605,7 @@ model %>% compile(
   loss = "mae"
 )
 
+# Each epoch takes ~30min, total time 
 history <- model %>% fit_generator(
   train_gen,
   steps_per_epoch = 500,
@@ -602,6 +615,16 @@ history <- model %>% fit_generator(
 )
 ```
 
+```{r}
+save_model_hdf5(model, "data/jena_climate_6.h5")
+load_model_hdf5("data/jena_climate_6.h5")
+save(list = c("history"), file = "data/jena_climate_6_history.rdata")
+load(file = "data/jena_climate_6_history.rdata")
+```
+
+```{r}
+plot(history)
+```
 It performs about as well as the regular GRU layer. It's easy to understand why: all of the predictive capacity must be coming from the chronological half of the network, since the anti-chronological half is known to be severely underperforming on this task (again, because the recent past matters much more than the distant past in this case).
 
 ## Going even further

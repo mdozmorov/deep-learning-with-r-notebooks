@@ -4,6 +4,8 @@ output:
   html_notebook: 
     theme: cerulean
     highlight: textmate
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -68,6 +70,7 @@ model %>% compile(
   metrics = c("acc")
 )
 
+# Each eposh is ~40sec, total time ~8min
 history <- model %>% fit(
   x_train, y_train,
   epochs = 10,
@@ -76,6 +79,13 @@ history <- model %>% fit(
 )
 ```
 
+
+```{r}
+save_model_hdf5(model, "data/6_4_1Dconvnet_1.h5")
+load_model_hdf5("data/6_4_1Dconvnet_1.h5")
+save(list = c("history"), file = "data/6_4_1Dconvnet_history_1.rdata")
+load(file = "data/6_4_1Dconvnet_history_1.rdata")
+```
 Here are our training and validation results: validation accuracy is somewhat lower than that of the LSTM we used two sections ago, but runtime is faster, both on CPU and GPU (albeit the exact speedup will vary greatly depending on your exact configuration). At that point, we could re-train this model for the right number of epochs (8), and run it on the test set. This is a convincing demonstration that a 1D convnet can offer a fast, cheap alternative to a recurrent network on a word-level sentiment classification task.
 
 ```{r}
@@ -91,8 +101,8 @@ Because 1D convnets process input patches independently, they are not sensitive 
 library(tibble)
 library(readr)
 
-data_dir <- "~/Downloads/jena_climate"
-fname <- file.path(data_dir, "jena_climate_2009_2016.csv")
+data_dir <- "data/jena_climate"
+fname <- file.path(data_dir, "jena_climate_2009_2016.csv.gz")
 data <- read_csv(fname)
 
 data <- data.matrix(data[,-1])
@@ -195,6 +205,7 @@ model %>% compile(
   loss = "mae"
 )
 
+# Each epoch takes ~110sec, total time ~30 min
 history <- model %>% fit_generator(
   train_gen,
   steps_per_epoch = 500,
@@ -202,6 +213,13 @@ history <- model %>% fit_generator(
   validation_data = val_gen,
   validation_steps = val_steps
 )
+```
+
+```{r}
+save_model_hdf5(model, "data/6_4_1Dconvnet_2.h5")
+load_model_hdf5("data/6_4_1Dconvnet_2.h5")
+save(list = c("history"), file = "data/6_4_1Dconvnet_history_2.rdata")
+load(file = "data/6_4_1Dconvnet_history_2.rdata")
 ```
 
 Here are our training and validation Mean Absolute Errors:
@@ -276,6 +294,7 @@ model %>% compile(
   loss = "mae"
 )
 
+# Each epoch is ~10min, total time ~3 hours
 history <- model %>% fit_generator(
   train_gen,
   steps_per_epoch = 500,
@@ -283,6 +302,13 @@ history <- model %>% fit_generator(
   validation_data = val_gen,
   validation_steps = val_steps
 )
+```
+
+```{r}
+save_model_hdf5(model, "data/6_4_1Dconvnet_3.h5")
+load_model_hdf5("data/6_4_1Dconvnet_3.h5")
+save(list = c("history"), file = "data/6_4_1Dconvnet_history_3.rdata")
+load(file = "data/6_4_1Dconvnet_history_3.rdata")
 ```
 
 ```{r}

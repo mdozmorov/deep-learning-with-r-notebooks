@@ -36,7 +36,7 @@ library(keras)
 
 mnist <- dataset_mnist()
 str(mnist)
-image(mnist$train$x[1, ,])
+plot(as.raster(mnist$train$x[1, , ], max = 255))
 mnist$train$y[1]
 train_images <- mnist$train$x
 train_labels <- mnist$train$y

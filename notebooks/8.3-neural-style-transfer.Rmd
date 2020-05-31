@@ -4,6 +4,8 @@ output:
   html_notebook: 
     theme: cerulean
     highlight: textmate
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -85,10 +87,10 @@ Let's start by defining the paths to the two images we consider: the style refer
 library(keras)
 
 # This is the path to the image you want to transform.
-target_image_path <- "style_transfer/portrait.png" 
+target_image_path <- "notebooks/style_transfer/portrait.png" 
 
 # This is the path to the style image.
-style_reference_image_path <- "style_transfer/transfer_style_reference.png"
+style_reference_image_path <- "notebooks/style_transfer/transfer_style_reference.png"
 
 # Dimensions of the generated picture.
 img <- image_load(target_image_path)
@@ -217,6 +219,8 @@ combination_features <- layer_features[3,,,]
 loss <- loss + content_weight * content_loss(target_image_features,
                                              combination_features)
 
+#  Error in py_call_impl(callable, dots$args, dots$keywords) : 
+#  ValueError: Duplicate node name in graph: 'stack'
 for (layer_name in style_layers){
   layer_features <- outputs_dict[[layer_name]]
   style_reference_features <- layer_features[2,,,]

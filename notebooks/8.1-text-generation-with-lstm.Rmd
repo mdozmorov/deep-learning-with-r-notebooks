@@ -4,6 +4,8 @@ output:
   html_notebook: 
     theme: cerulean
     highlight: textmate
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -36,6 +38,7 @@ path <- get_file(
 )
 text <- tolower(readChar(path, file.info(path)$size))
 cat("Corpus length:", nchar(text), "\n")
+str(text)
 ```
 
 Next, you'll extract partially overlapping sequences of length `maxlen`, one-hot encode them, and pack them in a 3D array `x` of shape `(sequences, maxlen, unique_characters)`. Simultaneously, you'll prepare an array `y` containing the corresponding targets: the one-hot-encoded characters that come after each extracted sequence.
@@ -77,6 +80,8 @@ for (i in 1:length(sentences)) {
   next_char <- next_chars[[i]]
   y[i, char_indices[[next_char]]] <- 1
 }
+str(x)
+str(y)
 ```
 
 ## Building the network
@@ -126,6 +131,7 @@ sample_next_char <- function(preds, temperature = 1.0) {
 Finally, the following loop repeatedly trains and generates text. You begin generating text using a range of different temperatures after every epoch. This allows you to see how the generated text evolves as the model begins to converge, as well as the impact of temperature in the sampling strategy.
 
 ```{r}
+# Each epoch takes increasingly long time. DO NOT RUN unless on GPUs
 for (epoch in 1:60) {
   
   cat("epoch", epoch, "\n")

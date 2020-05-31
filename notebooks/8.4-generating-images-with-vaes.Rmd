@@ -4,6 +4,8 @@ output:
   html_notebook: 
     theme: cerulean
     highlight: textmate
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -190,6 +192,9 @@ x_train <- array_reshape(x_train, dim =c(dim(x_train), 1))
 
 x_test <- x_test / 255
 x_test <- array_reshape(x_test, dim =c(dim(x_test), 1))
+
+#  Error in py_call_impl(callable, dots$args, dots$keywords) : 
+#  _SymbolicException: Inputs to eager execution function cannot be Keras symbolic tensors, but found [<tf.Tensor 'dense_2/Identity:0' shape=(None, 2) dtype=float32>, <tf.Tensor 'dense_1/Identity:0' shape=(None, 2) dtype=float32>] 
 
 vae %>% fit(
   x = x_train, y = NULL,

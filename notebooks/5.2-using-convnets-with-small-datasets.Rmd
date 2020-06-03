@@ -108,6 +108,7 @@ file.copy(file.path(original_dataset_dir, fnames),
 
 ```{r}
 base_dir <- "/home/rstudio/"
+base_dir <- "."
 train_dir <- file.path(base_dir, "data/cats_and_dogs_small/train")
 validation_dir <- file.path(base_dir, "data/cats_and_dogs_small/validation")
 test_dir <- file.path(base_dir, "data/cats_and_dogs_small/test")
@@ -143,7 +144,7 @@ cat("total test cat images:", length(list.files(test_cats_dir)), "\n")
 ```
 
 ```{r}
- cat("total test dog images:", length(list.files(test_dogs_dir)), "\n")
+cat("total test dog images:", length(list.files(test_dogs_dir)), "\n")
 ```
 
 So we have indeed 2000 training images, and then 1000 validation images and 1000 test images. In each split, there is the same number of samples from each class: this is a balanced binary classification problem, which means that classification accuracy will be an appropriate measure of success.
@@ -244,6 +245,7 @@ Let's fit the model to the data using the generator. You do so using the `fit_ge
 When using `fit_generator`, you can pass a `validation_data` argument, much as with the `fit` function. It's important to note that this argument is allowed to be a data generator, but it could also be a list of arrays. If you pass a generator as `validation_data`, then this generator is expected to yield batches of validation data endlessly; thus you should also specify the `validation_steps` argument, which tells the process how many batches to draw from the validation generator for evaluation.
 
 ```{r, echo=TRUE, results='hide'}
+# Each epoch is ~90sec, total time ~45min
 history <- model %>% fit_generator(
   train_generator,
   steps_per_epoch = 100,
@@ -256,10 +258,10 @@ history <- model %>% fit_generator(
 It is good practice to always save your models after training:
 
 ```{r}
-model %>% save_model_hdf5("data/cats_and_dogs_small_1.h5")
-# load_model_hdf5()
-# Also, see https://tensorflow.rstudio.com/tutorials/beginners/basic-ml/tutorial_save_and_restore/
-# save_model_tf(), load_model_tf()
+save_model_hdf5(model, "data/cats_and_dogs_small_1.h5")
+load_model_hdf5("data/cats_and_dogs_small_1.h5")
+save(list = c("history"), file = "data/cats_and_dogs_small_history_1.rdata")
+load(file = "data/cats_and_dogs_small_history_1.rdata")
 ```
 
 Let's plot the loss and accuracy of the model over the training and validation data during training:
@@ -389,6 +391,7 @@ validation_generator <- flow_images_from_directory(
   class_mode = "binary"
 )
 
+# Each epoch is ~2.2min
 history <- model %>% fit_generator(
   train_generator,
   steps_per_epoch = 100,
@@ -401,7 +404,10 @@ history <- model %>% fit_generator(
 Let's save our model -- we will be using it in the section on convnet visualization.
 
 ```{r}
-model %>% save_model_hdf5("data/cats_and_dogs_small_2.h5")
+save_model_hdf5(model, "data/cats_and_dogs_small_2.h5")
+load_model_hdf5("data/cats_and_dogs_small_2.h5")
+save(list = c("history"), file = "data/cats_and_dogs_small_history_2.rdata")
+load(file = "data/cats_and_dogs_small_history_2.rdata")
 ```
 
 Let's plot our results again:

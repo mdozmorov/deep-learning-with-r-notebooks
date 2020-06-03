@@ -89,6 +89,7 @@ We'll cover both techniques. Let's walk through the code required to set up the 
 We'll start by running instances of the previously introduced `image_data_generator()` to extract images as arrays as well as their labels. We will extract features from these images by calling the `predict` method on the model.
 
 ```{r}
+# Takes 1-2min
 base_dir <- "~/Downloads/cats_and_dogs_small"
 base_dir <- "data/cats_and_dogs_small"
 train_dir <- file.path(base_dir, "train")
@@ -166,6 +167,7 @@ model %>% compile(
   metrics = c("accuracy")
 )
 
+# Each eposh takes ~4sec, total time ~1.5min
 history <- model %>% fit(
   train$features, train$labels,
   epochs = 30,
@@ -262,8 +264,8 @@ model %>% compile(
   metrics = c("accuracy")
 )
 
-# One epoch takes up to 500sec
-# Full training takes ~4hours
+# Each epoch takes ~500sec, total time ~4hours (CPU)
+# Each epoch takes ~25sec, total time ~12min (GPU)
 history <- model %>% fit_generator(
   train_generator,
   steps_per_epoch = 100,
@@ -272,10 +274,13 @@ history <- model %>% fit_generator(
   validation_steps = 50
 )
 ```
-
 ```{r}
-save_model_hdf5(model, "data.cats_and_dogs_small_3.h5")
+save_model_hdf5(model, "data/5_3_pretrained_CNN_1.h5")
+load_model_hdf5("data/5_3_pretrained_CNN_1.h5")
+save(list = c("history"), file = "data/5_3_pretrained_CNN_history_1.rdata")
+load(file = "data/5_3_pretrained_CNN_history_1.rdata")
 ```
+
 
 Let's plot our results again:
 
@@ -331,6 +336,7 @@ model %>% compile(
   metrics = c("accuracy")
 )
 
+# Each epoch takes ~25sec, total time ~40min (GPU)
 history <- model %>% fit_generator(
   train_generator,
   steps_per_epoch = 100,
@@ -341,7 +347,10 @@ history <- model %>% fit_generator(
 ```
 
 ```{r}
-save_model_hdf5(model, "cats_and_dogs_small_4.h5")
+save_model_hdf5(model, "data/5_3_pretrained_CNN_2.h5")
+load_model_hdf5("data/5_3_pretrained_CNN_2.h5")
+save(list = c("history"), file = "data/5_3_pretrained_CNN_history_2.rdata")
+load(file = "data/5_3_pretrained_CNN_history_2.rdata")
 ```
 
 Let's plot our results using the same plotting code as before:

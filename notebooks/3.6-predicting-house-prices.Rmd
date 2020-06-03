@@ -130,7 +130,7 @@ folds <- cut(1:length(indices), breaks = k, labels = FALSE)
 
 num_epochs <- 100
 all_scores <- c()
-# Each fold takes ~30 sec
+# Each fold takes ~30 sec, total time ~5 min
 for (i in 1:k) {
   cat("processing fold #", i, "\n")
   gc()
@@ -152,7 +152,7 @@ for (i in 1:k) {
                 
   # Evaluate the model on the validation data
   results <- model %>% evaluate(val_data, val_targets, verbose = 0)
-  all_scores <- c(all_scores, results$mean_absolute_error)
+  all_scores <- c(all_scores, results$mae)
 }  
 ```
 
@@ -178,6 +178,7 @@ k_clear_session()
 ```{r, echo=TRUE, results='hide'}
 num_epochs <- 500
 all_mae_histories <- NULL
+# Total time is ~20min
 for (i in 1:k) {
   cat("processing fold #", i, "\n")
   gc()
@@ -199,7 +200,7 @@ for (i in 1:k) {
     validation_data = list(val_data, val_targets),
     epochs = num_epochs, batch_size = 1, verbose = 0
   )
-  mae_history <- history$metrics$val_mean_absolute_error
+  mae_history <- history$metrics$mae
   all_mae_histories <- rbind(all_mae_histories, mae_history)
 }
 ```

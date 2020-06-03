@@ -34,7 +34,7 @@ Visualizing intermediate activations consists in displaying the feature maps tha
 ```{r}
 library(keras)
 
-model <- load_model_hdf5("data/cats_and_dogs_small_2.h5")
+model <- load_model_hdf5("data/5_3_pretrained_CNN_2.h5")
 summary(model)  # As a reminder.
 ```
 

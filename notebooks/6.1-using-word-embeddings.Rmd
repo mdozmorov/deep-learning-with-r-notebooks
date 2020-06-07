@@ -306,7 +306,7 @@ history <- model %>% fit(
   validation_data = list(x_val, y_val)
 )
 
-save_model_weights_hdf5(model, "data/pre_trained_glove_model.h5")
+save_model_weights_hdf5(model, "data/6_1_pre_trained_glove_model.h5")
 ```
 
 Let's plot its performance over time:
@@ -377,7 +377,7 @@ And let's load and evaluate the first model:
 
 ```{r}
 model %>% 
-  load_model_weights_hdf5("data/pre_trained_glove_model.h5") %>% 
+  load_model_weights_hdf5("data/6_1_pre_trained_glove_model.h5") %>% 
   evaluate(x_test, y_test, verbose = 0)
 ```
 

@@ -132,6 +132,7 @@ Finally, the following loop repeatedly trains and generates text. You begin gene
 
 ```{r}
 # Each epoch takes increasingly long time. DO NOT RUN unless on GPUs
+# Each epoch on GPU takes ~4min
 for (epoch in 1:60) {
   
   cat("epoch", epoch, "\n")

@@ -258,7 +258,7 @@ model %>% compile(
   loss = "mae"
 )
 
-# Each epoch is ~50sec, full training is ~16min
+# Each epoch is ~50sec, full training is ~16min, same on GPU
 history <- model %>% fit_generator(
   train_gen,
   steps_per_epoch = 500,
@@ -271,6 +271,8 @@ history <- model %>% fit_generator(
 ```{r}
 save_model_hdf5(model, "data/jena_climate_1.h5")
 load_model_hdf5("data/jena_climate_1.h5")
+save(list = c("history"), file = "data/jena_climate_history_1.rdata")
+load(file = "data/jena_climate_history_1.rdata")
 ```
 
 Let's display the loss curves for validation and training:
@@ -300,6 +302,7 @@ model %>% compile(
 )
 
 # Each epoch takes ~160sec, full training <1hour
+# GPU, each epoch takes ~16min, total time 5 hours
 history <- model %>% fit_generator(
   train_gen,
   steps_per_epoch = 500,
@@ -312,6 +315,8 @@ history <- model %>% fit_generator(
 ```{r}
 save_model_hdf5(model, "data/jena_climate_2.h5")
 load_model_hdf5("data/jena_climate_2.h5")
+save(list = c("history"), file = "data/jena_climate_history_2.rdata")
+load(file = "data/jena_climate_history_2.rdata")
 ```
 
 Let look at our results:
@@ -355,7 +360,10 @@ history <- model %>% fit_generator(
 ```{r}
 save_model_hdf5(model, "data/jena_climate_3.h5")
 load_model_hdf5("data/jena_climate_3.h5")
+save(list = c("history"), file = "data/jena_climate_history_3.rdata")
+load(file = "data/jena_climate_history_3.rdata")
 ```
+
 
 ```{r}
 plot(history)
@@ -544,12 +552,24 @@ model %>% compile(
 )
 
 # Could not run, OverflowError: Python int too large to convert to C long
+# Run on GPU, each epoch is ~3min, total time ~30min
 history <- model %>% fit(
   x_train, y_train,
   epochs = 10,
   batch_size = 128,
   validation_split = 0.2
 )
+```
+
+```{r}
+save_model_hdf5(model, "data/6_3_advanced_RNN_1.h5")
+load_model_hdf5("data/6_3_advanced_RNN_1.h5")
+save(list = c("history"), file = "data/6_3_advanced_RNN_history_1.rdata")
+load(file = "data/6_3_advanced_RNN_history_1.rdata")
+```
+
+```{r}
+plot(history)
 ```
 
 We get near-identical performance as the chronological-order LSTM we tried in the previous section.
@@ -581,6 +601,7 @@ model %>% compile(
 )
 
 # Could not run: OverflowError: Python int too large to convert to C long
+# Run on GPU, each epoch is ~5min, total time ~45min
 history <- model %>% fit(
   x_train, y_train,
   epochs = 10,
@@ -589,6 +610,16 @@ history <- model %>% fit(
 )
 ```
 
+```{r}
+save_model_hdf5(model, "data/6_3_advanced_RNN_2.h5")
+load_model_hdf5("data/6_3_advanced_RNN_2.h5")
+save(list = c("history"), file = "data/6_3_advanced_RNN_history_2.rdata")
+load(file = "data/6_3_advanced_RNN_history_2.rdata")
+```
+
+```{r}
+plot(history)
+```
 It performs slightly better than the regular LSTM we tried in the previous section, going above 88% validation accuracy. It also seems to overfit faster, which is unsurprising since a bidirectional layer has twice more parameters than a chronological LSTM. With some regularization, the bidirectional approach would likely be a strong performer on this task.
 
 Now let's try the same approach on the weather prediction task:
